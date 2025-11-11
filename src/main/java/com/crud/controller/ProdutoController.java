@@ -1,6 +1,11 @@
+//porta de entrada. recebe os dados e manda pra service fazer a logicaa
+// recebe oq o usuario esta pedindo
+// Recebe os pedidos (requisições) e responde
 package com.crud.controller;
 
 import com.crud.model.Produto;
+import com.crud.service.ProdutoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -8,64 +13,49 @@ import java.util.List;
 import org.springframework.web.bind.annotation.CrossOrigin;//
 
 @CrossOrigin(origins = "http://localhost:4200") // permite que o Angular acesse o backend
-
 @RestController //diz que essa classe vai responder a requisições web.
-
 @RequestMapping("/produtos") // todas as rotas dessa classe começam com /produtos
 public class ProdutoController {
 
-    // lista simulando um banco de dados
-    private List<Produto> produtos = new ArrayList<>();
+    @Autowired // Injeta automaticamente a classe ProdutoService
+    private ProdutoService produtoService;
 
-    // construtor: adiciona alguns produtos iniciais
-    public ProdutoController() {
-        produtos.add(new Produto(1, "Notebook", 3500.0));
-        produtos.add(new Produto(2, "Mouse", 50.0));
-        produtos.add(new Produto(3, "Teclado", 150.0));
-    }
-
-    // GET - lista todos os produtos
-    // Exemplo: se acessar http://localhost:8080/produtos, vai mostrar todos os produtos no navegador.
-    @GetMapping //busca produtos.
+    // GET - listar todos
+    @GetMapping
     public List<Produto> getProdutos() {
-        return produtos;
+        return produtoService.listarTodos();
     }
 
-    // GET por ID
-    @GetMapping("/{id}")
+    // GET - buscar por ID
+    @GetMapping("/id/{id}")
     public Produto getProdutoPorId(@PathVariable int id) {
-        for (Produto p : produtos) {
-            if (p.getId() == id) {  // Se achar → retorna o produto.
-                return p;
-            }
-        }
-        return null; // se não encontrar, retorna null (só pra simplificar agora)
+        return produtoService.buscarPorId(id);
     }
 
-    // POST - //adiciona novo produto
-    @PostMapping //cria um novo produto
+    // POST - criar novo
+    @PostMapping
     public Produto criarProduto(@RequestBody Produto novoProduto) {
-        produtos.add(novoProduto);
-        return novoProduto;
+        return produtoService.adicionar(novoProduto);
     }
 
-    // PUT - atualiza um produto existente
-    @PutMapping("/{id}")                                   //pega o produto enviado no corpo da requisição (JSON).
+    // PUT - atualizar
+    @PutMapping("/{id}")
     public Produto atualizarProduto(@PathVariable int id, @RequestBody Produto produtoAtualizado) {
-        for (Produto p : produtos) {
-            if (p.getId() == id) {
-                p.setNome(produtoAtualizado.getNome());
-                p.setPreco(produtoAtualizado.getPreco());
-                return p;
-            }
-        }
-        return null;
+        return produtoService.atualizar(id, produtoAtualizado);
     }
 
-    // DELETE - remove um produto
+    //  DELETE - remover
     @DeleteMapping("/{id}")
-    public String deletarProduto(@PathVariable int id) {  //@PathVariable → pega o id que vem na URL.
-        produtos.removeIf(p -> p.getId() == id);
-        return "Produto com ID " + id + " removido!";
+    public String deletarProduto(@PathVariable int id) {
+        return produtoService.deletar(id);
     }
+
+    // fazer um endepoint get que vai receber um parametor chamado nome que ele vai
+    // buscar na lista de produtos aquele q tem o nome
+    @GetMapping("/nome/{nome}")
+    public Produto getProdutoPorNome(@PathVariable String nome) {
+        return produtoService.buscarPorNome(nome);
+    }
+
+
 }
