@@ -8,10 +8,13 @@ import com.crud.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.springframework.web.bind.annotation.CrossOrigin;//
 
-@RestController
-@RequestMapping("/produtos")
+@CrossOrigin(origins = "http://localhost:4200") // permite que o Angular acesse o backend
+@RestController //diz que essa classe vai responder a requisições web.
+@RequestMapping("/produtos") // todas as rotas dessa classe começam com /produtos
 public class ProdutoController {
 
     @Autowired // Injeta automaticamente a classe ProdutoService
