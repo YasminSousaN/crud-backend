@@ -1,74 +1,66 @@
 //a controller apenas chama os métodos do service, e o service cuida da lógica.
 package com.crud.service;
 
-import com.crud.model.Produto;
+import com.crud.entity.Produto;
+import com.crud.repository.ProdutoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service // Indica que essa classe é responsável pela lógica do sistema (regras de negócio)
 public class ProdutoService {
 
-    private List<Produto> produtos = new ArrayList<>();
+    @Autowired  //cria um objeto dessa classe (ProdutoRepository) e coloca aqui dentro pra eu usar
+    private ProdutoRepository repository;
 
-    // Construtor: cria produtos iniciais
-    public ProdutoService() {
-        produtos.add(new Produto(1, "Notebook", 3500.0));
-        produtos.add(new Produto(2, "Mouse", 50.0));
-        produtos.add(new Produto(3, "Teclado", 150.0));
-    }
+    private List<Produto> produtos = new ArrayList<>();
 
     // GET - listar todos
     public List<Produto> listarTodos() {
-        return produtos;
+        return repository.findAll();
     }
 
     // GET - buscar por ID
-    public Produto buscarPorId(int id) {
-        return produtos.stream()
-                .filter(p -> p.getId() == id)
-                .findFirst()
-                .orElse(null);
+    public Produto buscarPorId(Integer id) {
+        return repository.findById(id).orElse(null);
     }
 
 
     public Produto buscarPorNome(String nome) {
-        return produtos.stream()
-                .filter(p -> p.getNome() == nome)
-                .findFirst()
-                .orElse(null);
+        List<Produto> produtos = repository.findByNome(nome);
+        if (produtos.isEmpty()) {
+            return null; // nenhum produto encontrado
+        }
+        return produtos.get(0); // retorna o primeiro produto da lista
     }
+
+
 
 
     // POST - adicionar novo
     public Produto adicionar(Produto produto) {
-        produtos.add(produto);
-        return produto;
+        return repository.save(produto);
     }
 
-    // PUT - atualizar
-    public Produto atualizar(int id, Produto novoProduto) {
-        for (Produto p : produtos) {
-            if (p.getId() == id) {
-                p.setNome(novoProduto.getNome());
-                p.setPreco(novoProduto.getPreco());
-                return p;
-            }
-        }
-        return null;
-    }
 
     // DELETE - remover
-    public String deletar(int id) {
-        boolean removido = produtos.removeIf(p -> p.getId() == id);
-        if (removido) {
-            return "Produto com ID " + id + " removido!";
+    public String deletar(Integer id) {
+        Optional<Produto> produtoOpt = repository.findById(id);
+
+        if (produtoOpt.isPresent()) {
+            Produto produto = produtoOpt.get(); // pega o Produto do Optional
+            repository.delete(produto);         // deleta
+            return "DELETADO COM SUCESSO";
         } else {
-            return "Produto com ID " + id + " não encontrado.";
+            return "NÃO DELETADO";              // caso não exista
         }
     }
-
-
 }
+
+
+
 
