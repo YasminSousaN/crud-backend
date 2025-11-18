@@ -3,12 +3,11 @@
 // Recebe os pedidos (requisições) e responde
 package com.crud.controller;
 
-import com.crud.model.Produto;
+import com.crud.entity.Produto;
 import com.crud.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.web.bind.annotation.CrossOrigin;//
 
@@ -24,29 +23,26 @@ public class ProdutoController {
     @GetMapping
     public List<Produto> getProdutos() {
         return produtoService.listarTodos();
+        //Ele busca todos os produtos no banco de dados, e devolve a lista para o angular
     }
 
     // GET - buscar por ID
-    @GetMapping("/id/{id}")
-    public Produto getProdutoPorId(@PathVariable int id) {
+    @GetMapping("/id/{id}")  //{id} = valor que vem pela URL e será enviado para o método
+    public Produto getProdutoPorId(@PathVariable Integer id) { //pega o número da URL e coloca na variável id
         return produtoService.buscarPorId(id);
     }
 
     // POST - criar novo
     @PostMapping
-    public Produto criarProduto(@RequestBody Produto novoProduto) {
+    public Produto criarProduto(@RequestBody Produto novoProduto) {  //pega o json eviado e transforma em produto e coloca dentro da varivel novo produto
         return produtoService.adicionar(novoProduto);
     }
 
-    // PUT - atualizar
-    @PutMapping("/{id}")
-    public Produto atualizarProduto(@PathVariable int id, @RequestBody Produto produtoAtualizado) {
-        return produtoService.atualizar(id, produtoAtualizado);
-    }
+
 
     //  DELETE - remover
     @DeleteMapping("/{id}")
-    public String deletarProduto(@PathVariable int id) {
+    public String deletarProduto(@PathVariable Integer id) {
         return produtoService.deletar(id);
     }
 
